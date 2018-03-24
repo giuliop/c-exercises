@@ -3,6 +3,7 @@
 
 # But not these files...
 !/cmu_labs/datalab-handout/*
+/cmu_labs/datalab-handout/btest
 !*.c
 !*.h
 !.gitignore
