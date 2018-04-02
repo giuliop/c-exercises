@@ -187,7 +187,7 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int bitCount(int x) {
-	/* Naive implementation of Hamming weigth algorithm. We first sum every two
+	/* Implementation of Hamming weigth algorithm. We first sum every two
 	 * bits together by adding x to its right shift by one each masked by 010101..
 	 * so that we clear every other bit, and so on until we sum all bits
 	 */
@@ -409,41 +409,33 @@ unsigned float_i2f(int x) {
 	 *			c. 100.0 -> if last significant bit we keep is 0 round-donw, if 1 round-up
 	 * 5. Corner cases are x = 0 (return x) and x = INT_MIN (return 0xcf000000)
 	 */
-	int sign = (x>>31) & 1;
-  int n = 30;
-	int exp = 0;
+	int res = 0;
+	int n = 30; // n will hold position of most significative bit
+	int exp = 127; // bias
 	int frac = 0;
 	int bits_lost = 0;
-	int last_bit_kept = 0;
+	int round = 0; // 1 round; 0 no round
 	int round_up = 0; // 1 round-up; 0 round-donw
-	int res = 0;
 	if (!x) return x;
 	if (x == 0x80000000) return 0xcf000000;
-	if (sign) x = -x;
-	while (!(x>>n)) --n; // n is position of most significative bit
-	exp = 127 + n;
-	frac = ((n > 23) ? (x>>(n-23)) : (x & ((1<<n)-1))<<(23-n)) & 0x7fffff;
-	/*printf("%d \n", sign);*/
-	/*printf("\n");*/
-	/*printf("x: %x \n", x);*/
-	/*printf("n: %d \n", n);*/
-	/*printf("%d \n", exp);*/
-	/*printf("%d \n", frac);*/
-  res = (sign<<31) | (exp<<23) | frac;
-	if (n > 23) {
-		bits_lost = x & ((1<<(n-23))-1);	// mask is 00..1..1 with n-23 1s (lost bits)
-			/*printf("bits_lost: %x \n", bits_lost);*/
-		last_bit_kept = (x>>(n-23)) & 1;
-			/*printf("last_bit_kept: %x \n", last_bit_kept);*/
-			/*printf("bits_lost>>(n-25): %x \n", bits_lost>>(n-25));*/
-		round_up = (bits_lost > (1<<n-24)) ||
-			((bits_lost == (1<<(n-24))) && last_bit_kept);
+	if (x<0) {
+		x = -x;
+		res = 0x80000000;
+	}
+	while (!(x>>n)) --n;
+	round = n > 23;
+	exp += n;
+	x <<= (31-n); // remove 0s
+	frac = (x>>8) & 0x7fffff;
+	res = res | (exp<<23) | frac;
+	if (round) {
+		bits_lost = x & 0xff;
+		round_up = (bits_lost > 128) ||
+			((bits_lost == 128) && (frac & 1));
 		if (round_up) {
-			/*printf("Round-up! \n");*/
 			++res;
 		}
 	} 
-	/*printf("\n");*/
 	return res;
 }
 /* 
