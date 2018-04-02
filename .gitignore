@@ -2,11 +2,14 @@
 *
 
 # But not these files...
-!/cmu_labs/datalab-handout/*
-/cmu_labs/datalab-handout/btest
 !*.c
 !*.h
 !.gitignore
+!/cmu_labs/datalab-handout/*
+!/cmu_labs/bomb/*
 
 # ...even if they are in subdirectories
 !*/
+
+# but still ignore these...
+/cmu_labs/datalab-handout/btest
