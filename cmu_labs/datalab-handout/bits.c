@@ -450,5 +450,25 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+	/* We have the following cases:
+	 * 1. exp is 0xff return uf (infinity or NaN)
+	 * 2. exp is > 0 (normalized) -> increase exp by 1;
+	 *		if exp == 0xff then frac = 0 (infniity)
+	 * 3. exp is 0 (denormalized) -> if frac == 0 return uf (+0 or -0);
+	 *		else shift frac left by 1; if MSB of frac was 1 then exp = 1
+	 */
+	unsigned sign = uf & 0x80000000;
+	unsigned exp = (uf>>23) & 0xff;	
+	unsigned frac = uf & 0x7fffff;
+	if (exp == 0xff) return uf;
+	if (exp > 0) {
+		++exp;
+		if (exp == 0xff) frac = 0;
+	} else {
+		if (frac == 0) return uf;
+		if (frac>>22) exp = 1;
+		frac <<= 1;
+	}
+	return sign | (exp<<23) | frac;
 }
+
