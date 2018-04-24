@@ -1,9 +1,14 @@
 #include <stdio.h>
 
+double f(int a, int b) {
+	return a+b;
+}
+
 int main() {
-long long int x = 4294967296;
-long long int y = 1L<<32;
-printf("%lld \n", x);
-printf("%lld \n", y);
+	int a = 1;
+	int b = 1;
+	double c = f(a,b);
+	printf("%lu \n", sizeof(c));
+	printf("%f \n", c);
 }
 
