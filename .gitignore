@@ -5,7 +5,7 @@
 !*.c
 !*.h
 !.gitignore
-!/cmu_labs/datalab-handout/*
+!/cmu_labs/data/*
 !/cmu_labs/bomb/*
 
 # ...even if they are in subdirectories
