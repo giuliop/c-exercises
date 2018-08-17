@@ -8,9 +8,13 @@
 !/cmu_labs/data/*
 !/cmu_labs/bomb/*
 !/cmu_labs/attack/*
+!/cmu_labs/architecture/sim/pipe/ncopy.ys
+!/cmu_labs/architecture/sim/pipe/pipe-full.hcl
 
 # ...even if they are in subdirectories
 !*/
 
 # but still ignore these...
 /cmu_labs/datalab-handout/btest
+/cmu_labs/architecture/sim/*/*.c
+/cmu_labs/architecture/sim/*/*.h
