@@ -10,6 +10,7 @@
 !/cmu_labs/attack/*
 !/cmu_labs/architecture/sim/pipe/ncopy.ys
 !/cmu_labs/architecture/sim/pipe/pipe-full.hcl
+!/cmu_labs/architecture/sim/pipe/benchmarks
 
 # ...even if they are in subdirectories
 !*/
