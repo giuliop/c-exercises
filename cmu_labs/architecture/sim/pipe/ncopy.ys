@@ -18,9 +18,9 @@ ncopy:
 	# Loop header
 	xorq %rax,%rax		# count = 0;
 	irmovq $1, %r9
-	irmovq $16, %r11
-	irmovq $2, %rcx
-	subq %rcx, %rdx		# len >= 2?
+	irmovq $48, %r11
+	irmovq $6, %rcx
+	subq %rcx, %rdx		# len >= loop unroll?
     jl Finish		    # if not, goto Finish
 Loop:
     mrmovq (%rdi), %r10	# read val from src...
@@ -37,9 +37,37 @@ Loop:
 	addq %r8, %rax		# count++
 	rmmovq %r10, 8(%rsi)	# ...and store it to dst
 
+    mrmovq 16(%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, 16(%rsi)	# ...and store it to dst
+
+    mrmovq 24(%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, 24(%rsi)	# ...and store it to dst
+
+    mrmovq 32(%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, 32(%rsi)	# ...and store it to dst
+
+    mrmovq 40(%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, 40(%rsi)	# ...and store it to dst
+
 	addq %r11, %rdi		# src++
 	addq %r11, %rsi		# dst++
-	subq %rcx, %rdx		# len >= 2?
+	subq %rcx, %rdx		# len >= loop unroll?
 	jge Loop			# if so, goto Loop:
 Finish:
 	addq %rcx,%rdx		# ripristinate count
