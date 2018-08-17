@@ -24,14 +24,14 @@ ncopy:
 
 Loop:
     mrmovq (%rdi), %r10	# read val from src...
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	andq %r10, %r10		# val <= 0?
-	irmovq $0, %r10
-	cmovg %r9, %r10
-	addq %r10, %rax		# count++
-	subq %r9, %rdx		# len--
 	addq %r11, %rdi		# src++
+	andq %r10, %r10		# val <= 0?
+	irmovq $0, %r8
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, (%rsi)	# ...and store it to dst
 	addq %r11, %rsi		# dst++
+	subq %r9, %rdx		# len--
 	andq %rdx,%rdx		# len > 0?
 	jg Loop			# if so, goto Loop:
 ##################################################################
