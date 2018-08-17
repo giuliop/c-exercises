@@ -1,3 +1,4 @@
 15.18 CPE - standard version
 13.41 CPE - conditional move and constants outside loop
 12.41 CPE - reordered instructions to avoid load/use bubble
+ 9.87 CPE - loop unrolled 2x1

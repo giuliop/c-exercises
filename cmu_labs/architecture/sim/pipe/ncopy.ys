@@ -17,11 +17,11 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	xorq %rax,%rax		# count = 0;
-	andq %rdx,%rdx		# len <= 0?
-	jle Done		# if so, goto Done:
 	irmovq $1, %r9
-	irmovq $8, %r11
-
+	irmovq $16, %r11
+	irmovq $2, %rcx
+	subq %rcx, %rdx		# len >= 2?
+    jl Finish		    # if not, goto Finish
 Loop:
     mrmovq (%rdi), %r10	# read val from src...
 	irmovq $0, %r8
@@ -29,13 +29,34 @@ Loop:
 	cmovg %r9, %r8
 	addq %r8, %rax		# count++
 	rmmovq %r10, (%rsi)	# ...and store it to dst
+
+    mrmovq 8(%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, 8(%rsi)	# ...and store it to dst
+
 	addq %r11, %rdi		# src++
 	addq %r11, %rsi		# dst++
-	subq %r9, %rdx		# len--
-	andq %rdx,%rdx		# len > 0?
-	jg Loop			# if so, goto Loop:
+	subq %rcx, %rdx		# len >= 2?
+	jge Loop			# if so, goto Loop:
 Finish:
+	addq %rcx,%rdx		# ripristinate count
+	jle Done		    # if so, goto Done:
+	irmovq $8, %r11
 Last_loop:
+    mrmovq (%rdi), %r10	# read val from src...
+	irmovq $0, %r8
+	andq %r10, %r10		# val <= 0?
+	cmovg %r9, %r8
+	addq %r8, %rax		# count++
+	rmmovq %r10, (%rsi)	# ...and store it to dst
+
+	addq %r11, %rdi		# src++
+	addq %r11, %rsi		# dst++
+	subq %r9, %rdx		# len > 0?
+	jg Last_loop		# if so, goto Last_loop:
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
