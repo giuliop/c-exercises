@@ -16,7 +16,7 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
-	xorq %rax,%rax		# count = 0;
+    xorq %rax,%rax		# count = 0;
 	irmovq $1, %r9
 	irmovq $48, %r11
 	irmovq $6, %rcx
@@ -71,7 +71,7 @@ Loop:
 	jge Loop			# if so, goto Loop:
 Finish:
 	addq %rcx,%rdx		# ripristinate count
-	jle Done		    # if so, goto Done:
+	jle Done		    # if <=0, goto Done:
 	irmovq $8, %r11
 Last_loop:
     mrmovq (%rdi), %r10	# read val from src...
