@@ -18,9 +18,7 @@ ncopy:
 	# Loop header
     xorq %rax,%rax		# count = 0;
 	irmovq $1, %r9
-	irmovq $48, %r11
-	irmovq $6, %rcx
-	subq %rcx, %rdx		# len >= loop unroll?
+	iaddq $-6, %rdx		# len >= loop unroll?
     jl Finish		    # if not, goto Finish
 Loop:
     mrmovq (%rdi), %r10	# read val from src...
@@ -65,14 +63,13 @@ Loop:
 	addq %r8, %rax		# count++
 	rmmovq %r10, 40(%rsi)	# ...and store it to dst
 
-	addq %r11, %rdi		# src++
-	addq %r11, %rsi		# dst++
-	subq %rcx, %rdx		# len >= loop unroll?
+	iaddq $48, %rdi		# src++
+	iaddq $48, %rsi		# dst++
+    iaddq $-6, %rdx		# len >= loop unroll?
 	jge Loop			# if so, goto Loop:
 Finish:
-	addq %rcx,%rdx		# ripristinate count
+    iaddq $6, %rdx		# len >= loop unroll?
 	jle Done		    # if <=0, goto Done:
-	irmovq $8, %r11
 Last_loop:
     mrmovq (%rdi), %r10	# read val from src...
 	irmovq $0, %r8
@@ -81,9 +78,9 @@ Last_loop:
 	addq %r8, %rax		# count++
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 
-	addq %r11, %rdi		# src++
-	addq %r11, %rsi		# dst++
-	subq %r9, %rdx		# len > 0?
+	iaddq $8, %rdi		# src++
+	iaddq $8, %rsi		# dst++
+	iaddq $-1, %rdx		# len > 0
 	jg Last_loop		# if so, goto Last_loop:
 ##################################################################
 # Do not modify the following section of code
