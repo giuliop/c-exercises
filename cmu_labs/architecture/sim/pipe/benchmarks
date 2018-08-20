@@ -12,7 +12,7 @@
  8.75 CPE - with refactored count update routine
  8.47 CPE - clean-up loop unrolled with conditionals
  8.41 CPE - clean-up loop unrolled with jump table
-
+ 8.22 CPE - loop unrolled 10x1
 
 
 

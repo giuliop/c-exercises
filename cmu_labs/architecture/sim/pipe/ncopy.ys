@@ -17,7 +17,7 @@ ncopy:
 # You can modify this portion
 	# Loop header
     xorq %rax,%rax		    # count = 0;
-	iaddq $-6, %rdx		    # len >= loop unroll?
+	iaddq $-10, %rdx		    # len >= loop unroll?
     jl Finish		        # if not, goto Finish
 
 Loop:
@@ -63,13 +63,41 @@ Loop:
 	cmovg %r9, %rax			# if so update count
 	rmmovq %r10, 40(%rsi)	# ...and store val to dst
 
-	iaddq $48, %rdi		    # src++
-	iaddq $48, %rsi		    # dst++
-    iaddq $-6, %rdx		    # len >= loop unroll?
+    mrmovq 48(%rdi), %r10	# read val from src...
+    rrmovq %rax, %r9		# copy count in r9
+    iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 48(%rsi)	# ...and store val to dst
+
+    mrmovq 56(%rdi), %r10	# read val from src...
+    rrmovq %rax, %r9		# copy count in r9
+    iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 56(%rsi)	# ...and store val to dst
+
+    mrmovq 64(%rdi), %r10	# read val from src...
+    rrmovq %rax, %r9		# copy count in r9
+    iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 64(%rsi)	# ...and store val to dst
+
+    mrmovq 72(%rdi), %r10	# read val from src...
+    rrmovq %rax, %r9		# copy count in r9
+    iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 72(%rsi)	# ...and store val to dst
+
+	iaddq $80, %rdi		    # src++
+	iaddq $80, %rsi		    # dst++
+    iaddq $-10, %rdx		    # len >= loop unroll?
 	jge Loop			    # if so, goto Loop:
 
 Finish:
-    iaddq $6, %rdx		    # restore len
+    iaddq $10, %rdx		    # restore len
     addq %rdx, %rdx		    # compute jump destination
     mrmovq Jump_table(%rdx),%rdx
     irmovq 0xffff, %r11
@@ -125,71 +153,53 @@ Len3:
 	rmmovq %r10, 16(%rsi)	    # ...and store val to dst
     ret
 Len4:
-    mrmovq (%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, (%rsi)	    # ...and store val to dst
-
-    mrmovq 8(%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, 8(%rsi)	    # ...and store val to dst
-
-    mrmovq 16(%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, 16(%rsi)	    # ...and store val to dst
-
     mrmovq 24(%rdi), %r10	    # read val from src...
 	rrmovq %rax, %r9		# copy count in r9
 	iaddq $1, %r9      		# r9++ (as if val is pos)
 	andq %r10, %r10		    # val pos?
 	cmovg %r9, %rax			# if so update count
 	rmmovq %r10, 24(%rsi)	    # ...and store val to dst
-    ret
+    jmp Len3
 Len5:
-    mrmovq (%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, (%rsi)	    # ...and store val to dst
-
-    mrmovq 8(%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, 8(%rsi)	    # ...and store val to dst
-
-    mrmovq 16(%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, 16(%rsi)	    # ...and store val to dst
-
-    mrmovq 24(%rdi), %r10	    # read val from src...
-	rrmovq %rax, %r9		# copy count in r9
-	iaddq $1, %r9      		# r9++ (as if val is pos)
-	andq %r10, %r10		    # val pos?
-	cmovg %r9, %rax			# if so update count
-	rmmovq %r10, 24(%rsi)	    # ...and store val to dst
-
     mrmovq 32(%rdi), %r10	    # read val from src...
 	rrmovq %rax, %r9		# copy count in r9
 	iaddq $1, %r9      		# r9++ (as if val is pos)
 	andq %r10, %r10		    # val pos?
 	cmovg %r9, %rax			# if so update count
 	rmmovq %r10, 32(%rsi)	    # ...and store val to dst
-    ret
-
+    jmp Len4
+Len6:
+    mrmovq 40(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 40(%rsi)	    # ...and store val to dst
+    jmp Len5
+Len7:
+    mrmovq 48(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 48(%rsi)	    # ...and store val to dst
+    jmp Len6
+Len8:
+    mrmovq 56(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 56(%rsi)	    # ...and store val to dst
+    jmp Len7
+Len9:
+    mrmovq 64(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 64(%rsi)	    # ...and store val to dst
+    jmp Len8
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
@@ -204,6 +214,10 @@ Jump_table:
     .word Len3
     .word Len4
     .word Len5
+    .word Len6
+    .word Len7
+    .word Len8
+    .word Len9
 ##################################################################
 # Keep the following label at the end of your function
 End:
