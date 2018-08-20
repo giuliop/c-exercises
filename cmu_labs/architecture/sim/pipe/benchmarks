@@ -14,6 +14,8 @@
  8.41 CPE - clean-up loop unrolled with jump table
  8.22 CPE - loop unrolled 10x1
  7.83 CPE - loop with jumps instead of conditional moves
+ 7.79 CPE - clean-up loop with jumps instead of conditional moves
+            loop unrolled 8x1
 
 
 
