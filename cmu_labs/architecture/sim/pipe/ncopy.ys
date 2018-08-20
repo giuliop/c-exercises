@@ -69,21 +69,52 @@ Loop:
 	jge Loop			    # if so, goto Loop:
 
 Finish:
-    iaddq $6, %rdx		    # len >= loop unroll?
-	jle Done		        # if <=0, goto Done:
+    iaddq $6, %rdx		    # restore len
+    jle Done		        # if <=0, goto Done:
 
-Last_loop:
     mrmovq (%rdi), %r10	    # read val from src...
-    rrmovq %rax, %r9		# copy count in r9
-    iaddq $1, %r9      		# r9++ (as if val is pos)
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
 	andq %r10, %r10		    # val pos?
 	cmovg %r9, %rax			# if so update count
 	rmmovq %r10, (%rsi)	    # ...and store val to dst
-
-	iaddq $8, %rdi		    # src++
-	iaddq $8, %rsi		    # dst++
 	iaddq $-1, %rdx		    # len > 0 ?
-	jg Last_loop		    # if so, goto Last_loop:
+    jle Done
+
+    mrmovq 8(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 8(%rsi)	    # ...and store val to dst
+	iaddq $-1, %rdx		    # len > 0 ?
+    jle Done
+
+    mrmovq 16(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 16(%rsi)	    # ...and store val to dst
+	iaddq $-1, %rdx		    # len > 0 ?
+    jle Done
+
+    mrmovq 24(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 24(%rsi)	    # ...and store val to dst
+	iaddq $-1, %rdx		    # len > 0 ?
+    jle Done
+
+    mrmovq 32(%rdi), %r10	    # read val from src...
+	rrmovq %rax, %r9		# copy count in r9
+	iaddq $1, %r9      		# r9++ (as if val is pos)
+	andq %r10, %r10		    # val pos?
+	cmovg %r9, %rax			# if so update count
+	rmmovq %r10, 32(%rsi)	    # ...and store val to dst
+
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.

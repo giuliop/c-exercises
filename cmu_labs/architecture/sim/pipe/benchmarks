@@ -6,7 +6,12 @@
  9.15 CPE - loop unrolled 4x1
  9.07 CPE - loop unrolled 5x1
  9.04 CPE - loop unrolled 6x1
- 9.05 CPE - loop unrolled 7x1
- 9.07 CPE - loop unrolled 8x1
- 8.83 CPE - loop unrolled 8x1 with iaddq instruction
- 8.75 CPE - as above with refactored count update routine
+ /*9.05 CPE - loop unrolled 7x1*/
+ /*9.07 CPE - loop unrolled 8x1*/
+ 8.83 CPE - with iaddq instruction
+ 8.75 CPE - with refactored count update routine
+ 8.47 CPE - clean-up loop unrolled with conditionals
+
+
+
+
