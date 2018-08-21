@@ -179,12 +179,12 @@ l6b:
 	rmmovq %r10, 32(%rsi)
 	rmmovq %r11, 40(%rsi)
     jmp Len4                # we have 4 elements left
+# I'm at the maximum memory size allowed, cannot unroll l7 in two
 Len7:
     mrmovq 48(%rdi), %r11
 	andq %r11, %r11
     jle l7
     iaddq $1,%rax
-# I'm at the maximum memory size allowed, cannot unroll l7
 l7:
 	rmmovq %r11, 48(%rsi)
     jmp Len6                # we have 6 elements left 
