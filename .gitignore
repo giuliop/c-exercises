@@ -11,11 +11,11 @@
 !/cmu_labs/architecture/sim/pipe/ncopy.ys
 !/cmu_labs/architecture/sim/pipe/pipe-full.hcl
 !/cmu_labs/architecture/sim/pipe/benchmarks
+!/cmu_labs/architecture/part*/*
 
 # ...even if they are in subdirectories
 !*/
 
 # but still ignore these...
-/cmu_labs/datalab-handout/btest
 /cmu_labs/architecture/sim/*/*.c
 /cmu_labs/architecture/sim/*/*.h
