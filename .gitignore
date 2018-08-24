@@ -13,9 +13,16 @@
 !/cmu_labs/architecture/sim/pipe/benchmarks
 !/cmu_labs/architecture/part*/*
 
+
 # ...even if they are in subdirectories
 !*/
 
 # but still ignore these...
 /cmu_labs/architecture/sim/*/*.c
 /cmu_labs/architecture/sim/*/*.h
+/cmu_labs/cache/*.c
+/cmu_labs/cache/*.h
+
+# except for these...
+!/cmu_labs/cache/csim.c
+!/cmu_labs/cache/trans.c
