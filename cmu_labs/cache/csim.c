@@ -82,83 +82,97 @@ void print_help(char * name) {
 
 struct line {
 	int valid;
-	long tag;
-	long last_access;
+	unsigned long tag;
+	unsigned long last_access;
 };
 
 struct cache {
-	long  s;						// # sets
-	long  E;						// # lines per set
-	long  b;						// # of block bits (2^b is block size)
-	long access;				// # of accesses to the cache
-	struct line S[];		// array of s*E lines
+	unsigned long  s;						// # bits per sets
+	unsigned long  S;						// # sets
+	unsigned long  E;						// # lines per set
+	unsigned long  b;						// # of block bits (2^b is block size)
+	unsigned long access;				// # of accesses to the cache
+	struct line line[];					// array of S*E lines
 };
 
 // Create a new cache with S sets of E lines and 2^b block size
 // and return a pointer to it
 void init_cache(long s, long E, long b, struct cache * c) {
 	c->s = s;
+	c->S = (1 << s);
 	c->E = E;
 	c->b = b;
 	c->access = 0;
-	for (size_t n = 0; n < s*E; ++n) {
-		c->S[n].valid = 0;
-		c->S[n].tag = 0;
-		c->S[n].last_access = 0;
+	for (size_t n = 0; n < c->S*E; ++n) {
+		c->line[n].valid = 0;
+		c->line[n].tag = 0;
+		c->line[n].last_access = 0;
 	}
 	return;
 }
 
+struct cache_address {
+	unsigned long t;
+	unsigned long s;
+	unsigned long b;
+};
+
 struct mem_access {
 	uint64_t address;
-	size_t size;	// bytes read/written
+	char type;
 };
-
-struct cache_address {
-	long t;
-	long s;
-	long b;
-};
-
 	
 // Check if the cache holds the address and updates the cache as needed
 // together with the count of hits, misses and evictions
-void try_cache(struct cache * c, struct cache_address caddr) {
+void try_cache(struct cache * c, struct cache_address caddr,
+		struct mem_access m, int v) {
+	if (v) printf("s: 0x%lx - t: 0x%lx - ", caddr.s, caddr.t);
 	c->access += 1;
-	struct line * line = c->S + caddr.s;
-	struct line * to_write;
+	size_t to_write;
 	int evict = 1;
-	long worst_access = LONG_MAX;
-	size_t offset = sizeof(struct line);
-	for (struct line * end = line + c->E * offset; line < end; line += offset) {
-		if ((line->tag == caddr.t) && line->valid) {
-			line->last_access = c->access;
+	unsigned long worst_access = ULONG_MAX;
+	for (size_t i = caddr.s * c->E; i < caddr.s * c->E + c->E; ++i) {
+		if ((c->line[i].tag == caddr.t) && c->line[i].valid) {
+			c->line[i].last_access = c->access;
 			++hits;
+			if (v) printf("hit");
+			if (m.type == 'M') {
+				++hits;
+				if (v) printf(" hit");
+			}
+			if (v) printf("\n");
 			return;
 		}
 		if (evict) { 
-			if (!line->valid) {
+			if (!c->line[i].valid) {
 				evict = 0;
-				to_write = line;
-			} else if (line->last_access < worst_access) {
-				worst_access = line->last_access;
-				to_write = line;
+				to_write = i;
+			} else if (c->line[i].last_access < worst_access) {
+				worst_access = c->line[i].last_access;
+				to_write = i;
 			}
 		}
 	}
 	++misses;
-	to_write->valid = 1;
-	to_write->tag = caddr.t;
-	to_write->last_access = c->access;
+	if (v) printf("miss");
+	c->line[to_write].tag = caddr.t;
+	c->line[to_write].last_access = c->access;
+	c->line[to_write].valid = 1;
 	if (evict) {
 		++evictions;
+		if (v) printf(" evict");
 	}
+	if (m.type == 'M') {
+		++hits;
+		if (v) printf(" hit");
+	}
+	if (v) printf("\n");
 	return;
 }
 
-// Transform an entry of a Valgrind trace into a data memory access struct,
-// return 1 if successful or 0 if the entry was not valida
-int entry2mem_access(char * entry, struct mem_access * m) {
+// Transform an entry of a Valgrind trace into a data memory access
+// return 0 if not successful, 1 if ok
+int entry2mem_access(char * entry, struct mem_access * m, int v) {
 	if (!entry || (strlen(entry) < 3)) return 0;
 	if (entry[0]!=' ' || (entry[1]!='M' && entry[1]!='L' && entry[1]!='S') || 
 			entry[2]!=' ') return 0;
@@ -172,9 +186,10 @@ int entry2mem_access(char * entry, struct mem_access * m) {
 		address[i] = entry[i+1];
 	}
 	address[len-1] = 0;
+	if (v) printf("memory: %s - ", address);
 	m->address = (uint64_t)strtol(address, NULL, 0);
-	m->size = (size_t)strtol(found+1, NULL, 0);
-	if (!m->address || !m->size) return 0;
+	m->type = entry[1];
+	if (!m->address && strcmp(address, "0x0")) return 0;
 	return 1;
 }
 
@@ -187,29 +202,14 @@ struct cache_address mem2cache_address(uint64_t addr, struct cache * c) {
 	return caddr;
 }
 
-// Determines how many cache blocks are hit by a memory access
-size_t num_blocks(struct cache_address caddr, size_t num_bytes, struct cache * c) {
-	return 1;
-	size_t B = (1 << c->b);
-	size_t bytes_first_block = B - caddr.b;
-	if (num_bytes <= bytes_first_block) return 1;
-	size_t other_bytes = (num_bytes - bytes_first_block);
-	size_t other_blocks_needed =  other_bytes / B;
-	if ((other_bytes % B) > 0) ++other_blocks_needed;
-	return 1 + other_blocks_needed;
-}
-
 // Check an entry from a Valgrind trace against the cache
-void check_entry(char * entry, struct cache * c) {
-	struct mem_access m = {0};
-	int valid = entry2mem_access(entry, &m);
-	if (!valid) return;
+void check_entry(char * entry, struct cache * c, int v) {
+	struct mem_access m;
+	int address = entry2mem_access(entry, &m, v);
+	if (!address) return;
 	struct cache_address caddr = mem2cache_address(m.address, c);
-	size_t blocks = num_blocks(caddr, m.size, c);
-	for (size_t i = 0; i < blocks; ++i) {
-		caddr.s = (caddr.s + i) & ((1 << c->s) - 1);
-		try_cache(c, caddr);
-	}
+	caddr.s &= (1 << c->s) - 1;
+	try_cache(c, caddr, m, v);
 	return;
 }
 
@@ -227,11 +227,11 @@ int main(int argc, char * argv[]) {
 		print_help(argv[0]);
 		return 0;
 	}
-	// init cache
+	 /*init cache*/
 	struct cache * cache;
-	cache = malloc(sizeof(*cache) + opts.s * opts.E * sizeof(*cache->S));
+	cache = malloc(sizeof(*cache) + (1 << opts.s) * opts.E * sizeof(*cache->line));
 	init_cache(opts.s, opts.E, opts.b, cache);
-  // read memory access and simulate them
+	 /*read memory access and simulate them*/
 	FILE *fp;
 	char * entry = NULL;
 	size_t len = 0;
@@ -242,12 +242,12 @@ int main(int argc, char * argv[]) {
 		return 0;
 	}
 	while ((read = getline(&entry, &len, fp)) != -1) {
-		check_entry(entry, cache);
+		if (opts.v) printf("%.*s - ", (int)strlen(entry)-1, entry);
+		check_entry(entry, cache, opts.v);
 	}
 	fclose(fp);
 	if (entry) free(entry);
 	printSummary(hits, misses, evictions);
 	free(cache);
-	return 1;
+	return 0;
 }
-
