@@ -43,13 +43,9 @@ void copy(int m, int n, int j1, int i1, int j2, int i2, int M, int N, int A[N][M
 }
 
 void copytrans(int m, int n, int j1, int i1, int j2, int i2, int M, int N, int A[N][M], int B[M][N]) {
-	m += j1;
-	n += i1;
-	for (; i1<m; i1++, i2++) {
-		int j11=j1;
-		int j22=j2;
-		for (; j11<n; j11++, j22++) {
-			B[j22][i2] = A[i1][j11];
+	for (int nn = 0; nn<n; ++nn) {
+		for (int mm = 0; mm<m; ++mm) {
+			B[i2+mm][j2+nn] = A[i1+nn][j1+mm];
 		}
 	}
 }
@@ -87,7 +83,6 @@ char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
 	if (M == 32 && N == 32) {
-return;
 		for (int i=0; i<N; i+=8) {
 			for (int j=0; j<M; j+=8) {
 				trans(4, 4, j+4, i, M, N, A, B); 
@@ -100,7 +95,12 @@ return;
 	if (M == 64 && N == 64) {
 		for (int i=0; i<N; i+=8) {
 			for (int j=0; j<M; j+=8) {
+				if (i == j) {
+//				copy(4, 4, j+4, i, 60, 60, M, N, A, B);
 				trans_diag_4x4(j, i, M, N, A, B); 
+				} else {
+					trans(4, 4, j, i, M, N, A, B);
+				}
 //				copy(4, 4, j+4, i, 60, 60, M, N, A, B);
 //				trans(4, 4, j, i+4, M, N, A, B);
 				int jj = 60;
@@ -110,13 +110,13 @@ return;
 					int t3 = A[z+i][j+6];
 					int t4 = A[z+i][j+7];
 					trans(4, 1, j, z+i+4, M, N, A, B);
-					if (j == 56 && i != 56) jj = 60;
+					if (j == 56 && i < 56) jj = 52;
 					B[z+60][jj] = t1;
 					B[z+60][jj+1] = t2;
 					B[z+60][jj+2] = t3;
 					B[z+60][jj+3] = t4;
 				}
-				copytrans(4, 4, jj, 60, j+4, i, M, N, B, B);
+				copytrans(4, 4, jj, 60, i, j+4, M, N, B, B);
 				trans_diag_4x4(j+4, i+4, M, N, A, B); 
 			}
 		}
