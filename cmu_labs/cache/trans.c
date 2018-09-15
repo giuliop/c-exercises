@@ -124,29 +124,25 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 		}
 	}
 	if (M == 61 && N == 67) {
-		int x, i, j, t1, t2, t3, t4, t5, t6, t7, t8;
-		for (x = 0; x < 4080; x+=8) {	// 67*61=4087, will miss 7 elements
-			i = x / 61;
-			j = x % 61;
-			t1 = A[i][j++];
-			t2 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
-			t3 = (j==61 ? A[++i][j=0] : A[i][j]); j++;  
-			t4 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
-			t5 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
-			t6 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
-			t7 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
-			t8 = (j==61 ? A[++i][j=0] : A[i][j]);
-			B[j][i] = t8;
-			if (--j < 0) { B[j=60][--i] = t7; } else { B[j][i] = t7; }
-			if (--j < 0) { B[j=60][--i] = t6; } else { B[j][i] = t6; }
-			if (--j < 0) { B[j=60][--i] = t5; } else { B[j][i] = t5; }
-			if (--j < 0) { B[j=60][--i] = t4; } else { B[j][i] = t4; }
-			if (--j < 0) { B[j=60][--i] = t3; } else { B[j][i] = t3; }
-			if (--j < 0) { B[j=60][--i] = t2; } else { B[j][i] = t2; }
-			if (--j < 0) { B[j=60][--i] = t1; } else { B[j][i] = t1; }
+		int i, j;
+		for (i = 0; i < 64; i+=8) {	// will miss 3 lines
+			for (j = 0; j < 56; j+=8) {	// will miss 5 columns
+				trans_diag_4x4(j+4, i, M, N, A, B); 
+				trans_diag_4x4(j, i, M, N, A, B); 
+				trans_diag_4x4(j, i+4, M, N, A, B); 
+				trans_diag_4x4(j+4, i+4, M, N, A, B); 
+			}
+			// last 5 columns
+			trans(1, 4, j+4, i, M, N, A, B); 
+			trans_diag_4x4(j, i, M, N, A, B); 
+			trans(5, 4, j, i+4, M, N, A, B); 
 		}
-		for (x = 0; x < 7; x++) {
-			B[54+x][66] = A[66][54+x];
+		// last 3 lines
+		// last 5 columns
+		trans(5, 3, 56, i, M, N, A, B); 
+		// first columns
+		for (j = 0; j < 56; j+=8) {	// will miss 5 columns
+			trans(8, 3, j, i, M, N, A, B); 
 		}
 	}
 	return;
