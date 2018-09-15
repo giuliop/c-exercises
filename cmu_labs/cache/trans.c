@@ -95,30 +95,58 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 	if (M == 64 && N == 64) {
 		for (int i=0; i<N; i+=8) {
 			for (int j=0; j<M; j+=8) {
-				if (i == j) {
-//				copy(4, 4, j+4, i, 60, 60, M, N, A, B);
-				trans_diag_4x4(j, i, M, N, A, B); 
+				if (i == j && i < 48) {
+					copy(8, 4, j, i, 48, 56, M, N, A, B);
+					copy(8, 4, j, i+4, 56, 60, M, N, A, B);
+					copytrans(4, 4, 48, 56, i, j, M, N, B, B);
+					copytrans(4, 4, 56, 60, j+4, i, M, N, B, B);
+					copytrans(4, 4, 52, 56, j, i+4, M, N, B, B);
+					copytrans(4, 4, 60, 60, i+4, j+4, M, N, B, B);
 				} else {
-					trans(4, 4, j, i, M, N, A, B);
+						trans_diag_4x4(j, i, M, N, A, B); 
+					int jj = 60;
+					for (int z=0; z<4; ++z) {
+						int t1 = A[z+i][j+4];
+						int t2 = A[z+i][j+5];
+						int t3 = A[z+i][j+6];
+						int t4 = A[z+i][j+7];
+						trans(4, 1, j, z+i+4, M, N, A, B);
+						if (j == 56 && i < 56) jj = 52;
+						B[z+60][jj] = t1;
+						B[z+60][jj+1] = t2;
+						B[z+60][jj+2] = t3;
+						B[z+60][jj+3] = t4;
+					}
+					copytrans(4, 4, jj, 60, i, j+4, M, N, B, B);
+					trans_diag_4x4(j+4, i+4, M, N, A, B); 
 				}
-//				copy(4, 4, j+4, i, 60, 60, M, N, A, B);
-//				trans(4, 4, j, i+4, M, N, A, B);
-				int jj = 60;
-				for (int z=0; z<4; ++z) {
-					int t1 = A[z+i][j+4];
-					int t2 = A[z+i][j+5];
-					int t3 = A[z+i][j+6];
-					int t4 = A[z+i][j+7];
-					trans(4, 1, j, z+i+4, M, N, A, B);
-					if (j == 56 && i < 56) jj = 52;
-					B[z+60][jj] = t1;
-					B[z+60][jj+1] = t2;
-					B[z+60][jj+2] = t3;
-					B[z+60][jj+3] = t4;
-				}
-				copytrans(4, 4, jj, 60, i, j+4, M, N, B, B);
-				trans_diag_4x4(j+4, i+4, M, N, A, B); 
 			}
+		}
+	}
+	if (M == 61 && N == 67) {
+		int x, i, j, t1, t2, t3, t4, t5, t6, t7, t8;
+		for (x = 0; x < 4080; x+=8) {	// 67*61=4087, will miss 7 elements
+			i = x / 61;
+			j = x % 61;
+			t1 = A[i][j++];
+			t2 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
+			t3 = (j==61 ? A[++i][j=0] : A[i][j]); j++;  
+			t4 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
+			t5 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
+			t6 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
+			t7 = (j==61 ? A[++i][j=0] : A[i][j]); j++;
+			t8 = (j==61 ? A[++i][j=0] : A[i][j]);
+			B[j][i] = t8;
+			if (--j < 0) { B[j=60][--i] = t7; } else { B[j][i] = t7; }
+			if (--j < 0) { B[j=60][--i] = t6; } else { B[j][i] = t6; }
+			if (--j < 0) { B[j=60][--i] = t5; } else { B[j][i] = t5; }
+			if (--j < 0) { B[j=60][--i] = t4; } else { B[j][i] = t4; }
+			if (--j < 0) { B[j=60][--i] = t3; } else { B[j][i] = t3; }
+			if (--j < 0) { B[j=60][--i] = t2; } else { B[j][i] = t2; }
+			if (--j < 0) { B[j=60][--i] = t1; } else { B[j][i] = t1; }
+		}
+		for (x = 0; x < 7; x++) {
+			B[54+x][66] = A[66][54+x];
 		}
 	}
 	return;
@@ -150,11 +178,11 @@ void transpose_8x8(int M, int N, int A[N][M], int B[M][N])
  */
 void registerFunctions()
 {
-    /* Register your solution function */
-		registerTransFunction(transpose_submit, transpose_submit_desc); 
+	/* Register your solution function */
+	registerTransFunction(transpose_submit, transpose_submit_desc); 
 
-    /* Register any additional transpose functions */
-//	registerTransFunction(transpose_8x8, transpose_8x8_desc);
+	/* Register any additional transpose functions */
+	//	registerTransFunction(transpose_8x8, transpose_8x8_desc);
 
 }
 
@@ -165,15 +193,14 @@ void registerFunctions()
  */
 int is_transpose(int M, int N, int A[N][M], int B[M][N])
 {
-    int i, j;
+	int i, j;
 
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; ++j) {
-            if (A[i][j] != B[j][i]) {
-                return 0;
-            }
-        }
-    }
-    return 1;
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < M; ++j) {
+			if (A[i][j] != B[j][i]) {
+				return 0;
+			}
+		}
+	}
+	return 1;
 }
-
