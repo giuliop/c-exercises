@@ -12,6 +12,8 @@
 !/csapp3/cmu_labs/architecture/sim/pipe/pipe-full.hcl
 !/csapp3/cmu_labs/architecture/sim/pipe/benchmarks
 !/csapp3/cmu_labs/architecture/part*/*
+!/csapp3/cmu_labs/malloc/*
+!/csapp3/cmu_labs/malloc/traces/*
 
 
 # ...even if they are in subdirectories
