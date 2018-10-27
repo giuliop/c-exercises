@@ -1,14 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-double f(int a, int b) {
-	return a+b;
+int main()
+{
+    printf("sizeof(int*): %li\n", sizeof(int*));
+    printf("sizeof(float*): %li\n", sizeof(float*));
+    printf("sizeof(void*): %li\n", sizeof(void*));
+    printf("sizeof(size_t): %li\n", sizeof(void*));
+    return 0;
 }
-
-int main() {
-	int a = 1;
-	int b = 1;
-	double c = f(a,b);
-	printf("%lu \n", sizeof(c));
-	printf("%f \n", c);
-}
-
