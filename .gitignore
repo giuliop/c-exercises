@@ -31,3 +31,4 @@
 !/csapp3/cmu_labs/shell/tsh.c
 !/csapp3/cmu_labs/shell/test.sh
 !/csapp3/cmu_labs/malloc/mm.c
+!/csapp3/cmu_labs/malloc/traces/*
