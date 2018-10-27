@@ -12,8 +12,6 @@
 !/csapp3/cmu_labs/architecture/sim/pipe/pipe-full.hcl
 !/csapp3/cmu_labs/architecture/sim/pipe/benchmarks
 !/csapp3/cmu_labs/architecture/part*/*
-!/csapp3/cmu_labs/malloc/*
-!/csapp3/cmu_labs/malloc/traces/*
 
 
 # ...even if they are in subdirectories
@@ -25,9 +23,11 @@
 /csapp3/cmu_labs/cache/*.c
 /csapp3/cmu_labs/cache/*.h
 /csapp3/cmu_labs/shell/*.c
+/csapp3/cmu_labs/malloc/*
 
 # except for these...
 !/csapp3/cmu_labs/cache/csim.c
 !/csapp3/cmu_labs/cache/trans.c
 !/csapp3/cmu_labs/shell/tsh.c
 !/csapp3/cmu_labs/shell/test.sh
+!/csapp3/cmu_labs/malloc/mm.c
