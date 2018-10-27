@@ -23,7 +23,8 @@
 /csapp3/cmu_labs/cache/*.c
 /csapp3/cmu_labs/cache/*.h
 /csapp3/cmu_labs/shell/*.c
-/csapp3/cmu_labs/malloc/*
+/csapp3/cmu_labs/malloc/*.c
+/csapp3/cmu_labs/malloc/*.h
 
 # except for these...
 !/csapp3/cmu_labs/cache/csim.c
