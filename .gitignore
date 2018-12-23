@@ -4,6 +4,9 @@
 # But not these files...
 !*.c
 !*.h
+!*.html
+!*.css
+!*.js
 !.gitignore
 !/csapp3/cmu_labs/data/*
 !/csapp3/cmu_labs/bomb/*
