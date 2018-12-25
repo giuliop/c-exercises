@@ -15,6 +15,9 @@
 !/csapp3/cmu_labs/architecture/sim/pipe/pipe-full.hcl
 !/csapp3/cmu_labs/architecture/sim/pipe/benchmarks
 !/csapp3/cmu_labs/architecture/part*/*
+!/csapp3/cmu_labs/proxy/*
+!/csapp3/cmu_labs/proxy/tiny/*
+!/csapp3/cmu_labs/proxy/tiny/cgi-bin/*
 
 
 # ...even if they are in subdirectories
