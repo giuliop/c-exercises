@@ -24,6 +24,7 @@
 !*/
 
 # but still ignore these...
+test.c
 /csapp3/cmu_labs/architecture/sim/*/*.c
 /csapp3/cmu_labs/architecture/sim/*/*.h
 /csapp3/cmu_labs/cache/*.c
