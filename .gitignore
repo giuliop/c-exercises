@@ -33,6 +33,8 @@ test.c
 /csapp3/cmu_labs/malloc/*.c
 /csapp3/cmu_labs/malloc/*.h
 /csapp3/cmu_labs/proxy/proxy
+/csapp3/cmu_labs/proxy/.proxy/*
+/csapp3/cmu_labs/proxy/.noproxy/*
 
 # except for these...
 !/csapp3/cmu_labs/cache/csim.c
