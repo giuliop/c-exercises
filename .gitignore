@@ -1,2 +1,9 @@
-test.c
-test
+#ignore all files
+*
+
+#except .c and .h
+!*.c
+!*.h
+
+#even if in subdirectories
+!*/
